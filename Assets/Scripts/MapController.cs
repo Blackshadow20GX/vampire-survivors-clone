@@ -18,6 +18,8 @@ public class MapController : MonoBehaviour
     GameObject latestChunk;
     public float maxOptimizationDistance; // Must be greater than the length and width of the tilemap
     float optimizationDistance;
+    float optimizerCooldown;
+    public float optimizerCooldownDuration;
 
 
     // Start is called before the first frame update
@@ -94,8 +96,18 @@ public class MapController : MonoBehaviour
 
     void ChunkOptimizer()
     {
-        // Currently the list continuously grows. It should prune itself at a certain number of chunks? maybe if super helpful
+        // TODO: Currently the list continuously grows. It should prune itself at a certain number of chunks? maybe if super helpful
         // powerups exist in a chunk, never unspawn it, but anything else at a certain distance its too bad.
+
+        optimizerCooldown -= Time.deltaTime;
+
+        if(optimizerCooldown > 0f)
+        {
+            return;
+        }
+
+        optimizerCooldown = optimizerCooldownDuration;
+
         foreach(GameObject chunk in spawnedChunks)
         {
             optimizationDistance = Vector3.Distance(player.transform.position, chunk.transform.position);
