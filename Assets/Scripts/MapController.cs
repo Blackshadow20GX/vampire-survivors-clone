@@ -13,6 +13,13 @@ public class MapController : MonoBehaviour
     public GameObject currentChunk;
     PlayerMovement pm;
 
+    [Header("Optimization")]
+    public List<GameObject> spawnedChunks;
+    GameObject latestChunk;
+    public float maxOptimizationDistance; // Must be greater than the length and width of the tilemap
+    float optimizationDistance;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +30,7 @@ public class MapController : MonoBehaviour
     void Update()
     {
         ChunkChecker();
+        ChunkOptimizer();
     }
 
     void ChunkChecker()
@@ -80,6 +88,18 @@ public class MapController : MonoBehaviour
     void SpawnChunk()
     {
         int rand = Random.Range(0, terrainChunks.Count);
-        Instantiate(terrainChunks[rand], noTerrainPosition, Quaternion.identity);
+        latestChunk = Instantiate(terrainChunks[rand], noTerrainPosition, Quaternion.identity);
+        spawnedChunks.Add(latestChunk);
+    }
+
+    void ChunkOptimizer()
+    {
+        // Currently the list continuously grows. It should prune itself at a certain number of chunks? maybe if super helpful
+        // powerups exist in a chunk, never unspawn it, but anything else at a certain distance its too bad.
+        foreach(GameObject chunk in spawnedChunks)
+        {
+            optimizationDistance = Vector3.Distance(player.transform.position, chunk.transform.position);
+            chunk.SetActive(optimizationDistance <= maxOptimizationDistance);
+        }
     }
 }
